@@ -1,6 +1,6 @@
 import boto3
 import urllib
-
+# This function copies all the files in a S3 bucket to another bucket
 def lambda_handler(event, context):
     event_record = event['Records'][0]
     s3_download_bucket = event_record['s3']['bucket']['name']
