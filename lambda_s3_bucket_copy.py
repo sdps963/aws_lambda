@@ -1,20 +1,47 @@
-import boto3
-import urllib
-# This function copies all the files in a S3 bucket to another bucket
-def lambda_handler(event, context):
-    event_record = event['Records'][0]
-    s3_download_bucket = event_record['s3']['bucket']['name']
-    s3_destination_bucket = 'source-9696'
-    s3_destination_key = event_record['s3']['object']['key']
-    
-    s3_resource = boto3.resource('s3')
-    for srcobj in s3_resource.Bucket(s3_download_bucket).objects.all():
-        
-        source_file = {
-            'Bucket': event_record['s3']['bucket']['name'],
-            'Key':srcobj.key
-        }
-    
+ 
 
-        s3_resource.meta.client.copy(source_file, s3_destination_bucket, srcobj.key)
-  
+#Lambda Function 
+
+from __future__ import print_function 
+import json 
+import urllib
+import boto3 
+import os 
+
+print('Loading function') 
+
+s3 = boto3.resource('s3') 
+
+def lambda_handler(event, context): 
+
+    #print("Received event: " + json.dumps(event, indent=2)) 
+    #Get the object from the event and show its content type 
+
+    bucket = event['Records'][0]['s3']['bucket']['name'] 
+    print("source bucket name: "+bucket) 
+
+    key = urllib.unquote_plus(event['Records'][0]['s3']['object']['key'].encode('utf8'))  
+    print("key name: "+key) 
+
+    dest_bucket = s3.Bucket(os.environ['Buckt']) 
+    print("destination bucket name: "+dest_bucket.name) 
+
+    try: 
+
+        copy_source = {  
+
+            'Bucket': bucket, 
+
+            'Key': key 
+
+        } 
+
+        dest_obj = dest_bucket.Object('appcache/'+key) 
+
+        dest_obj.copy(copy_source) 
+
+        print("File copied successfully") 
+
+    except Exception as e: 
+
+        print(e) 
